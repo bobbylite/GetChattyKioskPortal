@@ -1,0 +1,54 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager Navigation
+
+    <AuthorizeView>
+        <Authorized>
+            <div class="top-row ps-3 navbar navbar-dark bg-dark">
+                <div class="container-fluid">
+                    <a class="navbar-brand" href="">GetChatty Kiosk Portal</a>/a>
+                    @if (isLoggedIn)
+                    {
+                        <span class="text-light" style="margin-right:-30%;">
+                            Hello, @context.User.Identity?.Name
+                        </span>
+                        <button class="btn btn-outline-light" @onclick="Logout">Logout</button>
+                    }
+                    else
+                    {
+                        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    }
+                </div>
+            </div>
+        </Authorized>
+        <NotAuthorized>
+            <a href="authentication/login">Log in</a>
+        </NotAuthorized>
+    </AuthorizeView>
+
+@code {
+    private bool collapseNavMenu = true;
+    private bool isLoggedIn;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        isLoggedIn = authState.User.Identity?.IsAuthenticated ?? false;
+    }
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    private async Task Logout()
+    {
+        Navigation.NavigateToLogout("authentication/logout");
+    }
+}

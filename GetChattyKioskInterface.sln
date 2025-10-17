@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetChattyKioskInterface", "GetChattyKioskInterface.csproj", "{85634551-8B95-E46F-0A06-77AED106474D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{85634551-8B95-E46F-0A06-77AED106474D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{85634551-8B95-E46F-0A06-77AED106474D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{85634551-8B95-E46F-0A06-77AED106474D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{85634551-8B95-E46F-0A06-77AED106474D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {14760A39-D104-4B1B-882C-D262B157CA23}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,193 @@
+@page "/"
+
+@implements IAsyncDisposable
+@attribute [Authorize]
+
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.Extensions.Options
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication 
+@using System.Text.Json
+
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IOptionsSnapshot<RemoteAuthenticationOptions<OidcProviderOptions>> OpenIdConnectOptions  
+@inject IJSRuntime JsRuntime
+@inject ILogger<UserInformation> _logger
+@inject NavigationManager NavigationManager
+
+<PageTitle>My Information</PageTitle>
+
+    <AuthorizeView>
+        <Authorized>
+<div class="container-fluid bg-light min-vh-100 p-5">
+    <div class="row mb-4">
+        <div class="col text-center">
+            <img src="images/GetChattyLogo.png" style="max-width: 160px;" alt="GetChatty Logo" class="mb-3" />
+            <h1 class="display-5 fw-bold">Employee Kiosk Portal</h1>
+            <p class="lead text-secondary">Manage kiosks, assist customers, and monitor device rentals.</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Quick Actions Cards -->
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-box-seam display-4 text-primary mb-3"></i>
+                    <h5 class="card-title fw-bold">Manage Devices</h5>
+                    <p class="card-text text-muted">View, assign, or check the status of devices at kiosks.</p>
+                    <a href="#" class="btn btn-sm btn-primary">Go</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-people-fill display-4 text-success mb-3"></i>
+                    <h5 class="card-title fw-bold">Customer Support</h5>
+                    <p class="card-text text-muted">Assist users with reservations, ID verification, or kiosks issues.</p>
+                    <a href="#" class="btn btn-sm btn-success">Go</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-gear-fill display-4 text-warning mb-3"></i>
+                    <h5 class="card-title fw-bold">Kiosk Settings</h5>
+                    <p class="card-text text-muted">Configure kiosks, update PIN codes, and manage location settings.</p>
+                    <a href="#" class="btn btn-sm btn-warning">Go</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity Table -->
+    <div class="row mt-5">
+        <div class="col">
+            <h3 class="fw-bold mb-3">Recent Kiosk Activity</h3>
+            <div class="table-responsive shadow-sm rounded">
+                <table class="table table-striped table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th scope="col">Kiosk ID</th>
+                            <th scope="col">Employee</th>
+                            <th scope="col">Customer</th>
+                            <th scope="col">Device Assigned</th>
+                            <th scope="col">Time</th>
+                            <th scope="col">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>K-102</td>
+                            <td>Alice J.</td>
+                            <td>John D.</td>
+                            <td>iPhone 15</td>
+                            <td>10:42 AM</td>
+                            <td><span class="badge bg-success">Completed</span></td>
+                        </tr>
+                        <tr>
+                            <td>K-204</td>
+                            <td>Mark S.</td>
+                            <td>Lisa K.</td>
+                            <td>Samsung S23</td>
+                            <td>10:55 AM</td>
+                            <td><span class="badge bg-warning text-dark">Pending</span></td>
+                        </tr>
+                        <tr>
+                            <td>K-305</td>
+                            <td>Jenna P.</td>
+                            <td>David R.</td>
+                            <td>iPad Pro</td>
+                            <td>11:05 AM</td>
+                            <td><span class="badge bg-danger">Issue</span></td>
+                        </tr>
+                        <tr>
+                            <td>K-108</td>
+                            <td>Samuel T.</td>
+                            <td>Emma L.</td>
+                            <td>Google Pixel 8</td>
+                            <td>11:20 AM</td>
+                            <td><span class="badge bg-success">Completed</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="row mt-5">
+        <div class="col text-center text-muted small">
+            &copy; 2025 GetChatty, Ltd. All rights reserved.
+        </div>
+    </div>
+</div>
+        </Authorized>
+        <NotAuthorized>
+            <a href="authentication/login">Log in</a>
+        </NotAuthorized>
+    </AuthorizeView>
+
+
+
+@code {
+    private ClaimsPrincipal? _user;
+    private IJSObjectReference? _jsModule;
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthState { get; set; }
+    private DotNetObjectReference<UserInformation>? objRef;
+
+    /// <summary>
+    /// Initializes the component asynchronously. It checks if the authentication state is not null,
+    /// retrieves the current user from the authentication state, and creates a DotNetObjectReference
+    /// to this component for JavaScript interop.
+    /// </summary>
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthState == null)
+        {
+            return;
+        }
+
+        var authState = await AuthState;
+        _user = authState.User;
+        objRef = DotNetObjectReference.Create(this);
+    }
+
+    /// <summary>
+    /// Executes after the component has rendered. On the first render, it imports a JavaScript module
+    /// associated with this component, retrieves user claims, and initializes JavaScript functionality
+    /// by invoking methods in the imported module with necessary parameters.
+    /// </summary>
+    /// <param name="firstRender">Indicates whether this is the first time the component is being rendered.</param>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _jsModule ??= await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./Pages/UserInformation.razor.js");
+            
+            var oidcOptions = OpenIdConnectOptions.Value.ProviderOptions;
+            ArgumentNullException.ThrowIfNull(oidcOptions);
+        }
+    }
+
+    /// <summary>
+    /// Asynchronously disposes of the resources.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous dispose operation.</returns>
+    public async ValueTask DisposeAsync()
+    {
+        if (_jsModule is null)
+        {
+            return;
+        }
+
+        await _jsModule.InvokeVoidAsync("dispose");
+    }
+}

@@ -1,0 +1,61 @@
+﻿@using System.Security.Claims
+
+@inherits LayoutComponentBase
+@inject ILogger<MainLayout> _logger
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <div class="top-row px-4">
+            <div style="display: flex; margin-top: 20px; margin-inline-end: auto;">
+                @if (!string.IsNullOrEmpty(@_fullname))
+                {
+                    <label for="user-name" class="fw-bold">User:</label>
+                    <p id="user-name" class="ms-1">@_fullname</p>
+                }
+            </div>
+            <LoginDisplay />
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+@code {
+    private string _fullname = string.Empty;
+    private ClaimsPrincipal? _user;
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthState { get; set; }
+
+    /// <summary>
+    /// Initializes the component asynchronously. It checks if the authentication state is not null,
+    /// retrieves the current user from the authentication state, and creates a DotNetObjectReference
+    /// to this component for JavaScript interop.
+    /// </summary>
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthState == null)
+        {
+            return;
+        }
+
+        var authState = await AuthState;
+        _user = authState.User;
+
+        var firstName = _user.Claims?.FirstOrDefault(c => c.Type == "given_name")?.Value;
+        var lastName = _user.Claims?.FirstOrDefault(c => c.Type == "family_name")?.Value;
+
+        if (string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName))
+        {
+            _logger.LogError("User claims are missing or invalid.");
+            return;
+        }
+
+        _fullname = $"{firstName} {lastName}";
+    }
+}

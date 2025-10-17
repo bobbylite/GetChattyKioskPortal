@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PingOne Self Service</title>
+    <base href="/" />
+    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/app.css" />
+    <link rel="icon" type="image/png" href="awfavicon.svg" />
+    <link href="IDMWORKS.PingOne.SelfService.Web.styles.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" integrity="sha512-dPXYcDub/aeb08c63jRq/k6GaKccl256JQy/AnOq7CAnEZ9FzSL9wSbcZkMp4R26vBsMLFYH4kQ67/bbV8XaCQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+    <div id="app">
+        <svg class="loading-progress">
+            <circle r="40%" cx="50%" cy="50%" />
+            <circle r="40%" cx="50%" cy="50%" />
+        </svg>
+        <div class="loading-progress-text"></div>
+    </div>
+
+    <div id="blazor-error-ui">
+        An unhandled error has occurred.
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
+    <script type="text/javascript" src="https://assets.pingone.com/davinci/latest/davinci.js"></script>
+    <script src="_content/Microsoft.AspNetCore.Components.WebAssembly.Authentication/AuthenticationService.js"></script>
+    <script src="_framework/blazor.webassembly.js" autostart="false"></script>
+    <script>
+        // Set the Blazor environment to Development if the hostname is a dev, test, stage, or local environment.
+        // Note that this includes settings 'autostart="false"' on the blazor.webassembly.js script tag.
+        // See: https://learn.microsoft.com/en-us/aspnet/core/blazor/fundamentals/environments#set-the-client-side-environment-via-blazor-startup-configuration
+        const localHostSubStrings = [
+            "127.0.0.1",
+            "localhost",
+            "no-ip",
+            "local."
+        ];
+        
+        const devHostSubStrings = [
+            "myprofile-dev"
+        ];
+        
+        const testHostSubStrings = [
+            "myprofile-test"
+        ];
+        
+        const stageHostSubStrings = [
+            "myprofile-stage"
+        ];
+        
+        var environment = 'Production';
+        if (localHostSubStrings.some(subString => window.location.hostname.includes(subString))) {
+            environment = 'Local';
+        } else if (devHostSubStrings.some(subString => window.location.hostname.includes(subString))) {
+            environment = 'Development';
+        } else if (testHostSubStrings.some(subString => window.location.hostname.includes(subString))) {
+            environment = 'Test';
+        } else if (stageHostSubStrings.some(subString => window.location.hostname.includes(subString))) {
+            environment = 'Stage';
+        }
+
+        console.debug(`Setting Blazor environment to ${environment}`);
+        Blazor.start({
+            environment: environment
+        });
+    </script>
+</body>
+
+</html>
