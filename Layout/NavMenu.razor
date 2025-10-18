@@ -11,22 +11,22 @@
                     <a class="navbar-brand" href="">GetChatty Kiosk Portal</a>/a>
                     @if (isLoggedIn)
                     {
-                        <span class="text-light" style="margin-right:-30%;">
-                            Hello, @context.User.Identity?.Name
-                        </span>
-                        <button class="btn btn-outline-light" @onclick="Logout">Logout</button>
+                        <button class="btn btn-outline-light" @onclick="Logout">Sign Out</button>
                     }
                     else
                     {
-                        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-                            <span class="navbar-toggler-icon"></span>
-                        </button>
+                        <button class="btn btn-outline-light" @onclick="Login">Sign Out</button>
                     }
                 </div>
             </div>
         </Authorized>
         <NotAuthorized>
-            <a href="authentication/login">Log in</a>
+            <div class="top-row ps-3 navbar navbar-dark bg-dark">
+                <div class="container-fluid">
+                    <a class="navbar-brand" href="">GetChatty Kiosk Portal</a>
+                    <button class="btn btn-outline-light" @onclick="Login">Sign In</button>
+                </div>
+            </div>
         </NotAuthorized>
     </AuthorizeView>
 
@@ -47,8 +47,16 @@
         collapseNavMenu = !collapseNavMenu;
     }
 
-    private async Task Logout()
+    private Task Logout()
     {
         Navigation.NavigateToLogout("authentication/logout");
+
+        return Task.CompletedTask;
+    }
+
+    private Task Login()
+    {
+        Navigation.NavigateToLogin("authentication/login");
+        return Task.CompletedTask;
     }
 }
