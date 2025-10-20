@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <!-- Begin explicit depdendencies to address vulnerabilities reported by `dotnet list package` -->
+    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
     <PackageReference Include="System.Text.Json" Version="8.0.5" />
     <!-- Begin standard dependencies -->
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.8" />

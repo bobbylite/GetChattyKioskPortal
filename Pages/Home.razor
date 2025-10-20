@@ -15,6 +15,7 @@
 @inject IJSRuntime JsRuntime
 @inject ILogger<Home> _logger
 @inject NavigationManager NavigationManager
+@inject IHttpClientFactory HttpClientFactory
 
 <PageTitle>Home</PageTitle>
 
@@ -128,6 +129,37 @@
     </div>
 </div>
 
+@inject IAccessTokenProvider TokenProvider
+
+<button class="btn btn-outline-secondary" @onclick="ShowAccessToken">Show Access Token</button>
+
+@if (!string.IsNullOrEmpty(_accessToken))
+{
+    <div class="mt-3">
+        <h5>Current Access Token (PingOne)</h5>
+        <textarea class="form-control" rows="10">@_accessToken</textarea>
+    </div>
+}
+
+@code {
+    private string? _accessToken;
+
+    private async Task ShowAccessToken()
+    {
+        var result = await TokenProvider.RequestAccessToken();
+
+        if (result.TryGetToken(out var token))
+        {
+            _accessToken = token.Value;
+            Console.WriteLine("Access Token: " + _accessToken);
+        }
+        else
+        {
+            _accessToken = "No token available.";
+        }
+    }
+}
+
 @code {
     private ClaimsPrincipal? _user;
     private IJSObjectReference? _jsModule;
@@ -150,7 +182,10 @@
 
         var authState = await AuthState;
         _user = authState.User;
+        _logger.LogInformation("User authenticated: {User}", _user.Identity?.Name);
+        _logger.LogInformation("User claims: {Claims}", JsonSerializer.Serialize(_user.Claims.Select(c => new { c.Type, c.Value })));
         objRef = DotNetObjectReference.Create(this);
+        await FetchPingOneUsersAsync();
     }
 
     /// <summary>
@@ -182,5 +217,19 @@
         }
 
         await _jsModule.InvokeVoidAsync("dispose");
+    }
+    private async Task FetchPingOneUsersAsync()
+    {
+        HttpClient? client = HttpClientFactory.CreateClient("PingOneAPI");
+
+        // Call PingOne Users API
+        var response = await client.GetAsync("users");
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return;
+        }
+
+        var serializedResponseContent = await response.Content.ReadAsStringAsync();
     }
 }
